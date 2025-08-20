@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import axiosInstance from "../AxiousConfig";
+import { useCallback } from "react";
 
 const MoreDetails = () => {
   const { state } = useLocation();
@@ -74,14 +74,78 @@ const MoreDetails = () => {
     return { hours, minutes, ok: true };
   }
 
-  function combineDateTime(dateStr, timeStr) {
+  // function combineDateTime(dateStr, timeStr) {
+  //   const d = parseDateString(dateStr);
+  //   if (!d) return null;
+  //   const { hours, minutes, ok } = parseTimeString(timeStr || "00:00");
+  //   if (!ok && timeStr) return null;
+
+  //   return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hours, minutes, 0, 0);
+  // }
+  const combineDateTime = useCallback((dateStr, timeStr) => {
     const d = parseDateString(dateStr);
     if (!d) return null;
     const { hours, minutes, ok } = parseTimeString(timeStr || "00:00");
     if (!ok && timeStr) return null;
 
     return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hours, minutes, 0, 0);
-  }
+  }, []);
+
+
+  // useEffect(() => {
+  //   if (!product?.date) {
+  //     setIsBookEnabled(false);
+  //     return;
+  //   }
+
+  //   const compute = () => {
+  //     const now = new Date();
+
+  //     // 🚫 If seats are not available -> disable immediately
+  //     if (product?.seatAvailable === false) {
+  //       setIsBookEnabled(false);
+  //       return;
+  //     }
+
+  //     const showDateOnly = parseDateString(product.date);
+  //     if (!showDateOnly || isNaN(showDateOnly.getTime())) {
+  //       setIsBookEnabled(false);
+  //       return;
+  //     }
+
+  //     const todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  //     const showDateOnlyKey = new Date(showDateOnly.getFullYear(), showDateOnly.getMonth(), showDateOnly.getDate());
+
+  //     if (showDateOnlyKey < todayDateOnly) {
+  //       setIsBookEnabled(false);
+  //       return;
+  //     }
+
+  //     if (showDateOnlyKey > todayDateOnly) {
+  //       setIsBookEnabled(true);
+  //       return;
+  //     }
+
+  //     // Same-day -> check time
+  //     if (!product?.time) {
+  //       setIsBookEnabled(false);
+  //       return;
+  //     }
+
+  //     const showDateTime = combineDateTime(product.date, product.time);
+  //     if (!showDateTime || isNaN(showDateTime.getTime())) {
+  //       setIsBookEnabled(false);
+  //       return;
+  //     }
+
+  //     const cutoff = new Date(showDateTime.getTime() - 60 * 60 * 1000);
+  //     setIsBookEnabled(now < cutoff);
+  //   };
+
+  //   compute();
+  //   const id = setInterval(compute, 30000);
+  //   return () => clearInterval(id);
+  // }, [product?.date, product?.time, product?.seatAvailable]);
 
   useEffect(() => {
     if (!product?.date) {
@@ -92,7 +156,6 @@ const MoreDetails = () => {
     const compute = () => {
       const now = new Date();
 
-      // 🚫 If seats are not available -> disable immediately
       if (product?.seatAvailable === false) {
         setIsBookEnabled(false);
         return;
@@ -105,7 +168,11 @@ const MoreDetails = () => {
       }
 
       const todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const showDateOnlyKey = new Date(showDateOnly.getFullYear(), showDateOnly.getMonth(), showDateOnly.getDate());
+      const showDateOnlyKey = new Date(
+        showDateOnly.getFullYear(),
+        showDateOnly.getMonth(),
+        showDateOnly.getDate()
+      );
 
       if (showDateOnlyKey < todayDateOnly) {
         setIsBookEnabled(false);
@@ -117,7 +184,6 @@ const MoreDetails = () => {
         return;
       }
 
-      // Same-day -> check time
       if (!product?.time) {
         setIsBookEnabled(false);
         return;
@@ -136,7 +202,8 @@ const MoreDetails = () => {
     compute();
     const id = setInterval(compute, 30000);
     return () => clearInterval(id);
-  }, [product?.date, product?.time, product?.seatAvailable]);
+  }, [product?.date, product?.time, product?.seatAvailable, combineDateTime]);
+
 
   if (!product) return <h2>No product details found.</h2>;
 
@@ -177,7 +244,7 @@ const MoreDetails = () => {
     if (!validate()) return;
 
     try {
-      
+
       const response = await axiosInstance.post("/api/payment/create-order", {
         amount: total,
       });
@@ -226,7 +293,7 @@ const MoreDetails = () => {
 
               // ✅ Try to send email, but don't fail if it doesn't work
               try {
-               
+
                 await axiosInstance.post("/api/email/send-ticket-email", {
                   ticket,
                   showDetails: showDetailsForEmail,
@@ -267,7 +334,7 @@ const MoreDetails = () => {
     <div className="container py-5">
       <div className="card shadow-lg p-4" style={{ borderRadius: "20px" }}>
         <div className="row g-4">
-        
+
           <div className="col-md-6">
             <img
               src={product.image1}
@@ -277,7 +344,7 @@ const MoreDetails = () => {
             />
           </div>
 
-       
+
           <div className="col-md-6 d-flex flex-column">
             <h2 style={{ color: "#ed974c" }}>{product.name}</h2>
             <p>{product.description}</p>

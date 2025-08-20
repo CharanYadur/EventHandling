@@ -49,7 +49,7 @@ const Locations = () => {
                         image: show.auditoriumImage,
                         image1: show.image1 || show.image2,
                         image2: show.image2 || show.image1,
-                        shortDescription: show.shortDescription,
+                        // shortDescription: show.shortDescription,
                         hall: hall,
                         place: show.place,
                         startTime: show.startTime,

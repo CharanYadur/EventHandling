@@ -1,16 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 const PropertiesCard = ({ product, loading }) => {
     const [isWishlisted, setIsWishlisted] = useState(false);
     const navigate = useNavigate();
-
-    const toggleWishlist = () => {
-        setIsWishlisted(!isWishlisted);
-        if (product) alert(`${product.name} ${isWishlisted ? 'removed from' : 'added to'} wishlist!`);
-    };
 
     const viewMore = () => {
         if (product) navigate("/viewMore", { state: { product } });
