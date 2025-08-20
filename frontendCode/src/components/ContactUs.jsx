@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import axiosInstance from "../AxiousConfig";
 
 const ContactUs = () => {
   const [activePage, setActivePage] = useState("dashboard");
@@ -10,13 +11,13 @@ const ContactUs = () => {
   const [loadingTickets, setLoadingTickets] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingShow, setEditingShow] = useState(null);
-  
+
   const [searchShows, setSearchShows] = useState("");
   const [selectedShowType, setSelectedShowType] = useState("");
   const [selectedShowDate, setSelectedShowDate] = useState(null);
   const [searchTickets, setSearchTickets] = useState("");
   const [selectedTicketShow, setSelectedTicketShow] = useState("");
-  
+
   const [newShow, setNewShow] = useState({
     name: "",
     date: "",
@@ -47,8 +48,10 @@ const ContactUs = () => {
   const fetchShows = async () => {
     setLoadingShows(true);
     try {
-      const res = await fetch("http://localhost:5000/api/shows");
-      const data = await res.json();
+      // const res = await fetch("http://localhost:5000/api/shows");
+      // const data = await res.json();
+      const res = await axiosInstance.get("/api/shows");
+      const data = res.data;
       setShows(data);
     } catch (error) {
       console.error("Error fetching shows:", error);
@@ -60,8 +63,10 @@ const ContactUs = () => {
   const fetchTickets = async () => {
     setLoadingTickets(true);
     try {
-      const res = await fetch("http://localhost:5000/api/tickets");
-      const data = await res.json();
+      // const res = await fetch("http://localhost:5000/api/tickets");
+      // const data = await res.json();
+      const res = await axiosInstance.get("/api/tickets");
+      const data = res.data;
       setTickets(data);
     } catch (error) {
       console.error("Error fetching tickets:", error);
@@ -86,18 +91,20 @@ const ContactUs = () => {
     e.preventDefault();
     try {
       if (editingShow) {
-        await fetch(`http://localhost:5000/api/shows/${editingShow._id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newShow),
-        });
+        // await fetch(`http://localhost:5000/api/shows/${editingShow._id}`, {
+        //   method: "PUT",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify(newShow),
+        // });
+        await axiosInstance.put(`/api/shows/${editingShow._id}`, newShow);
         setEditingShow(null);
       } else {
-        await fetch("http://localhost:5000/api/shows", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newShow),
-        });
+        // await fetch("http://localhost:5000/api/shows", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify(newShow),
+        // });
+        await axiosInstance.post("/api/shows", newShow);
       }
       setShowModal(false);
       setNewShow({
@@ -154,35 +161,35 @@ const ContactUs = () => {
   };
 
   const showTypes = [...new Set(shows.map((s) => s.showType).filter(Boolean))];
-  
+
   const showNames = [...new Set(shows.map((s) => s.name).filter(Boolean))];
 
   const filteredShows = shows.filter((show) => {
     const searchTerm = searchShows.toLowerCase();
-    const matchesSearch = 
+    const matchesSearch =
       show.name?.toLowerCase().includes(searchTerm) ||
       show.place?.toLowerCase().includes(searchTerm) ||
       show.hall?.toLowerCase().includes(searchTerm) ||
       show.shortDescription?.toLowerCase().includes(searchTerm);
-    
+
     const matchesShowType = !selectedShowType || show.showType === selectedShowType;
-    
-    const matchesDate = !selectedShowDate || 
+
+    const matchesDate = !selectedShowDate ||
       new Date(show.date).toDateString() === new Date(selectedShowDate).toDateString();
-    
+
     return matchesSearch && matchesShowType && matchesDate;
   });
 
   const filteredTickets = tickets.filter((ticket) => {
     const searchTerm = searchTickets.toLowerCase();
-    const matchesSearch = 
+    const matchesSearch =
       ticket.email?.toLowerCase().includes(searchTerm) ||
       ticket.mobile?.toLowerCase().includes(searchTerm) ||
       ticket.ticketHolders?.some(holder => holder.toLowerCase().includes(searchTerm)) ||
       ticket.show?.name?.toLowerCase().includes(searchTerm);
-    
+
     const matchesShow = !selectedTicketShow || ticket.show?.name === selectedTicketShow;
-    
+
     return matchesSearch && matchesShow;
   });
 
