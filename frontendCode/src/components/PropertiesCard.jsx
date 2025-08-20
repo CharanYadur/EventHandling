@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 const PropertiesCard = ({ product, loading }) => {
-    const [isWishlisted, setIsWishlisted] = useState(false);
     const navigate = useNavigate();
 
     const viewMore = () => {
