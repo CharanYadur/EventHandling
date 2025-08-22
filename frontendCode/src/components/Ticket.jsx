@@ -7,7 +7,7 @@ const Ticket = () => {
   const navigate = useNavigate();
 
   const ticket = state?.ticket;
-  const showDetails = state?.showDetails; // ✅ Use this for place, hall, date, etc.
+  const showDetails = state?.showDetails; 
 
   if (!ticket || !showDetails) {
     return (
@@ -24,22 +24,18 @@ const Ticket = () => {
   const generatePDF = () => {
     const doc = new jsPDF();
 
-    // Draw border
     doc.setLineWidth(1.5);
-    doc.rect(10, 10, 190, 280); // x, y, width, height
+    doc.rect(10, 10, 190, 280);
 
-    // Title
     doc.setFontSize(22);
-    doc.setTextColor(237, 151, 76); // orange
+    doc.setTextColor(237, 151, 76); 
     doc.setFont("helvetica", "bold");
     doc.text("Event Ticket", 105, 25, { align: "center" });
 
-    // Draw a line below title
     doc.setLineWidth(0.5);
     doc.setDrawColor(237, 151, 76);
     doc.line(10, 30, 200, 30);
 
-    // Ticket Details
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
     let y = 40;
@@ -57,7 +53,6 @@ const Ticket = () => {
     y += 10;
     doc.text(`Total Paid: ${ticket.totalAmount}`, 20, y);
 
-    // Ticket Holders
     y += 15;
     doc.setFont("helvetica", "bold");
     doc.text("Ticket Holders:", 20, y);
@@ -69,7 +64,6 @@ const Ticket = () => {
     });
 
 
-    // Contact
     y += 10;
     doc.setFont("helvetica", "bold");
     doc.text("Contact Info:", 20, y);
@@ -79,12 +73,10 @@ const Ticket = () => {
     y += 10;
     doc.text(`Mobile: ${ticket.mobile}`, 20, y);
 
-    // Footer line
     doc.setDrawColor(237, 151, 76);
     doc.setLineWidth(0.5);
     doc.line(10, 275, 200, 275);
 
-    // Save PDF
     doc.save(`Ticket_${ticket._id}.pdf`);
   };
 

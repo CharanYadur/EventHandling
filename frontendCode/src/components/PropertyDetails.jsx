@@ -55,7 +55,6 @@ const PropertyDetails = () => {
 
     const now = new Date();
 
-    // ❌ If no seats -> closed
     if (property?.seatAvailable === false) return false;
 
     const showDateOnly = parseDateString(property.availableFrom);
@@ -67,7 +66,6 @@ const PropertyDetails = () => {
     if (showDateOnlyKey < todayDateOnly) return false;
     if (showDateOnlyKey > todayDateOnly) return true;
 
-    // Same day -> check time if exists
     if (!property?.startTime) return false;
 
     const showDateTime = combineDateTime(property.availableFrom, property.startTime);
