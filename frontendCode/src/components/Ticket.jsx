@@ -91,14 +91,12 @@ const Ticket = () => {
           background: "linear-gradient(135deg, #fff 70%, #fef4ea)",
         }}
       >
-        {/* Header */}
         <div className="text-center border-bottom pb-3">
           <h2 style={{ color: "#ed974c" }}>🎟️ Your Ticket</h2>
           <p className="text-muted mb-0">Show ID: {ticket.showId}</p>
           <p className="fw-bold mt-1">Booking ID: {ticket._id}</p>
         </div>
 
-        {/* Show Details */}
         <div className="mt-4">
           <h4 className="fw-bold">{showDetails.name}</h4>
           <p><strong>📍 Place:</strong> {showDetails.place}</p>
@@ -108,8 +106,6 @@ const Ticket = () => {
           <p><strong>💰 Total Paid:</strong> ₹{ticket.totalAmount}</p>
         </div>
 
-        {/* Ticket Holders */}
-       // Ticket Holders section in Ticket.jsx
         <div className="mt-4">
           <h5>👥 Ticket Holders & Seats</h5>
           <ul className="list-group list-group-flush">
@@ -123,20 +119,17 @@ const Ticket = () => {
         </div>
 
 
-        {/* Contact Info */}
         <div className="mt-4">
           <p><strong>📧 Email:</strong> {ticket.email}</p>
           <p><strong>📱 Mobile:</strong> {ticket.mobile}</p>
         </div>
 
-        {/* PDF Download */}
         <div className="text-center mt-4">
           <button className="btn btn-success px-4" onClick={generatePDF}>
             📥 Download Ticket (PDF)
           </button>
         </div>
 
-        {/* Back Button */}
         <div className="d-flex justify-content-center mt-3">
           <button className="btn btn-outline-primary px-4" onClick={() => navigate("/")}>
             Back to Home
