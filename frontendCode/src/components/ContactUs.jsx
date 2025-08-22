@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import {
+  FaCalendarAlt,
+  FaBuilding,
+  FaMapMarkerAlt,
+  FaTheaterMasks,
+  FaRupeeSign,
+  FaClock,
+  FaTicketAlt,
+  FaEnvelope,
+  FaMobileAlt,
+  FaUsers,
+  FaIdCard
+} from "react-icons/fa";
 import axiosInstance from "../AxiousConfig";
 
 const ContactUs = () => {
@@ -63,8 +76,7 @@ const ContactUs = () => {
   const fetchTickets = async () => {
     setLoadingTickets(true);
     try {
-      // const res = await fetch("http://localhost:5000/api/tickets");
-      // const data = await res.json();
+
       const res = await axiosInstance.get("/api/tickets");
       const data = res.data;
       setTickets(data);
@@ -91,19 +103,9 @@ const ContactUs = () => {
     e.preventDefault();
     try {
       if (editingShow) {
-        // await fetch(`http://localhost:5000/api/shows/${editingShow._id}`, {
-        //   method: "PUT",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify(newShow),
-        // });
         await axiosInstance.put(`/api/shows/${editingShow._id}`, newShow);
         setEditingShow(null);
       } else {
-        // await fetch("http://localhost:5000/api/shows", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify(newShow),
-        // });
         await axiosInstance.post("/api/shows", newShow);
       }
       setShowModal(false);
@@ -411,28 +413,33 @@ const ContactUs = () => {
                         )}
                         <h5>{show.name}</h5>
                         <p>{show.shortDescription}</p>
+
                         <p>
-                          <strong>📅 Date:</strong> {new Date(show.date).toDateString()}
+                          <strong><FaCalendarAlt className="me-2 icon" /> Date:</strong> {new Date(show.date).toDateString()}
                         </p>
+
                         <p>
-                          <strong>🏛 Hall:</strong> {show.hall}
+                          <strong><FaBuilding className="me-2 icon" /> Hall:</strong> {show.hall}
                         </p>
+
                         <p>
-                          <strong>📍 Place:</strong> {show.place}
+                          <strong><FaMapMarkerAlt className="me-2 icon" /> Place:</strong> {show.place}
                         </p>
+
                         <p>
-                          <strong>🎭 Type:</strong> {show.showType}
+                          <strong><FaTheaterMasks className="me-2 icon" /> Type:</strong> {show.showType}
                         </p>
+
                         <p>
-                          <strong>💰 Cost:</strong> ₹{show.cost}
+                          <strong><FaRupeeSign className="me-2 icon" /> Cost:</strong> ₹{show.cost}
                         </p>
+
                         <p>
-                          <strong>
-                            ⏰ {show.startTime} - {show.endTime}
-                          </strong>
+                          <strong><FaClock className="me-2 icon" /> {show.startTime} - {show.endTime}</strong>
                         </p>
+
                         <p>
-                          <strong>🎟 Tickets Booked:</strong> {getBookedTicketsCount(show._id)}
+                          <strong><FaTicketAlt className="me-2 icon" /> Tickets Booked:</strong> {getBookedTicketsCount(show._id)}
                         </p>
                         <div className="d-flex justify-content-end gap-2 mt-2">
                           <button
@@ -535,24 +542,30 @@ const ContactUs = () => {
                   filteredTickets.map((ticket) => (
                     <div key={ticket._id} className="col-md-4 mb-3">
                       <div className="card shadow-sm p-3 rounded-4">
-                        <h5>🎭 {ticket.show?.name}</h5>
+                        <h5 className="icon"><FaTheaterMasks className="me-2 icon" /> {ticket.show?.name}</h5>
+
                         <p>
-                          <strong>📧 Email:</strong> {ticket.email}
+                          <strong><FaEnvelope className="me-2 icon" /> Email:</strong> {ticket.email}
                         </p>
+
                         <p>
-                          <strong>📱 Mobile:</strong> {ticket.mobile}
+                          <strong><FaMobileAlt className="me-2 icon" /> Mobile:</strong> {ticket.mobile}
                         </p>
+
                         <p>
-                          <strong>👥 Holders:</strong> {ticket.ticketHolders.join(", ")}
+                          <strong><FaUsers className="me-2 icon" /> Holders:</strong> {ticket.ticketHolders.join(", ")}
                         </p>
+
                         <p>
-                          <strong>🎟 Tickets:</strong> {ticket.ticketsCount}
+                          <strong><FaTicketAlt className="me-2 icon" /> Tickets:</strong> {ticket.ticketsCount}
                         </p>
+
                         <p>
-                          <strong>💰 Total:</strong> ₹{ticket.totalAmount}
+                          <strong><FaRupeeSign className="me-2 icon" /> Total:</strong> ₹{ticket.totalAmount}
                         </p>
+
                         <p>
-                          <strong>🆔 Payment:</strong> {ticket.paymentId || "N/A"}
+                          <strong><FaIdCard className="me-2 icon" /> Payment:</strong> {ticket.paymentId || "N/A"}
                         </p>
                         <div className="d-flex justify-content-end">
                           <button

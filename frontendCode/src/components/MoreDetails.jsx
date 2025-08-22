@@ -1,5 +1,14 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { 
+  FaMapMarkerAlt, 
+  FaBuilding, 
+  FaTheaterMasks, 
+  FaCalendarAlt, 
+  FaClock, 
+  FaRupeeSign, 
+  FaChair 
+} from "react-icons/fa";
 import axiosInstance from "../AxiousConfig";
 
 const MoreDetails = () => {
@@ -38,57 +47,57 @@ const MoreDetails = () => {
   }, [tickets]);
 
   // --------- Helpers ---------
- // --------- Helpers ---------
-function parseDateString(dateStr) {
-  if (!dateStr) return null;
-  // Support MM/DD/YYYY and DD/MM/YYYY
-  const parts = dateStr.split(/[/-]/);
-  if (parts.length !== 3) return null;
+  // --------- Helpers ---------
+  function parseDateString(dateStr) {
+    if (!dateStr) return null;
+    // Support MM/DD/YYYY and DD/MM/YYYY
+    const parts = dateStr.split(/[/-]/);
+    if (parts.length !== 3) return null;
 
-  let m, d, y;
-  if (parts[2].length === 4) {
-    // MM/DD/YYYY
-    m = parseInt(parts[0], 10);
-    d = parseInt(parts[1], 10);
-    y = parseInt(parts[2], 10);
-  } else {
-    // DD/MM/YYYY
-    d = parseInt(parts[0], 10);
-    m = parseInt(parts[1], 10);
-    y = parseInt(parts[2], 10);
+    let m, d, y;
+    if (parts[2].length === 4) {
+      // MM/DD/YYYY
+      m = parseInt(parts[0], 10);
+      d = parseInt(parts[1], 10);
+      y = parseInt(parts[2], 10);
+    } else {
+      // DD/MM/YYYY
+      d = parseInt(parts[0], 10);
+      m = parseInt(parts[1], 10);
+      y = parseInt(parts[2], 10);
+    }
+    if (!y || !m || !d) return null;
+    return new Date(y, m - 1, d);
   }
-  if (!y || !m || !d) return null;
-  return new Date(y, m - 1, d);
-}
 
-function parseTimeString(timeStr) {
-  if (!timeStr) return { hours: 0, minutes: 0, ok: false };
+  function parseTimeString(timeStr) {
+    if (!timeStr) return { hours: 0, minutes: 0, ok: false };
 
-  // ✅ Handle ranges like "10:30 - 20:17"
-  const startPart = timeStr.split("-")[0].trim();
+    // ✅ Handle ranges like "10:30 - 20:17"
+    const startPart = timeStr.split("-")[0].trim();
 
-  const m = startPart.match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM|am|pm))?$/);
-  if (!m) return { hours: 0, minutes: 0, ok: false };
+    const m = startPart.match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM|am|pm))?$/);
+    if (!m) return { hours: 0, minutes: 0, ok: false };
 
-  let hours = parseInt(m[1], 10);
-  const minutes = parseInt(m[2], 10);
-  const ampm = m[3]?.toLowerCase();
+    let hours = parseInt(m[1], 10);
+    const minutes = parseInt(m[2], 10);
+    const ampm = m[3]?.toLowerCase();
 
-  if (ampm) {
-    if (ampm === "pm" && hours < 12) hours += 12;
-    if (ampm === "am" && hours === 12) hours = 0;
+    if (ampm) {
+      if (ampm === "pm" && hours < 12) hours += 12;
+      if (ampm === "am" && hours === 12) hours = 0;
+    }
+    return { hours, minutes, ok: true };
   }
-  return { hours, minutes, ok: true };
-}
 
-const combineDateTime = useCallback((dateStr, timeStr) => {
-  const d = parseDateString(dateStr);
-  if (!d) return null;
-  const { hours, minutes, ok } = parseTimeString(timeStr || "00:00");
-  if (!ok && timeStr) return null;
+  const combineDateTime = useCallback((dateStr, timeStr) => {
+    const d = parseDateString(dateStr);
+    if (!d) return null;
+    const { hours, minutes, ok } = parseTimeString(timeStr || "00:00");
+    if (!ok && timeStr) return null;
 
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hours, minutes, 0, 0);
-}, []);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hours, minutes, 0, 0);
+  }, []);
 
 
   // --------- Booking enable/disable logic ---------
@@ -293,13 +302,35 @@ const combineDateTime = useCallback((dateStr, timeStr) => {
           <div className="col-md-6 d-flex flex-column">
             <h2 style={{ color: "#ed974c" }}>{product.name}</h2>
             <p>{product.description}</p>
-            <p><strong>📍 Place:</strong> {product.place}</p>
-            <p><strong>🏛 Hall:</strong> {product.hall}</p>
-            <p><strong>🎭 Show Type:</strong> {product.showType || "General"}</p>
-            <p><strong>📅 Date:</strong> {product.date}</p>
-            <p><strong>⏰ Time:</strong> {product.time}</p>
-            <p><strong>💰 Ticket Cost:</strong> ₹{unitCost}</p>
-            <p><strong>🪑 Seats:</strong> {product.seatAvailable ? "Available ✅" : "Not Available ❌"}</p>
+
+            <p>
+              <strong><FaMapMarkerAlt className="me-2 icon" /> Place:</strong> {product.place}
+            </p>
+
+            <p>
+              <strong><FaBuilding className="me-2 icon" /> Hall:</strong> {product.hall}
+            </p>
+
+            <p>
+              <strong><FaTheaterMasks className="me-2  icon" /> Show Type:</strong> {product.showType || "General"}
+            </p>
+
+            <p>
+              <strong><FaCalendarAlt className="me-2  icon" /> Date:</strong> {product.date}
+            </p>
+
+            <p>
+              <strong><FaClock className="me-2  icon" /> Time:</strong> {product.time}
+            </p>
+
+            <p>
+              <strong><FaRupeeSign className="me-2 icon" /> Ticket Cost:</strong> ₹{unitCost}
+            </p>
+
+            <p>
+              <strong><FaChair className="me-2  icon" /> Seats:</strong>
+              {product.seatAvailable ? " Available ✅" : " Not Available ❌"}
+            </p>
 
             <div className="d-flex align-items-center gap-3 mt-3">
               <button className="btn btn-outline-secondary" onClick={decrementTickets}>-</button>
