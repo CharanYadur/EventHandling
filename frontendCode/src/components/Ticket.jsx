@@ -20,72 +20,73 @@ const Ticket = () => {
     );
   }
 
-  
+
   const generatePDF = () => {
-  const doc = new jsPDF();
+    const doc = new jsPDF();
 
-  // Draw border
-  doc.setLineWidth(1.5);
-  doc.rect(10, 10, 190, 280); // x, y, width, height
+    // Draw border
+    doc.setLineWidth(1.5);
+    doc.rect(10, 10, 190, 280); // x, y, width, height
 
-  // Title
-  doc.setFontSize(22);
-  doc.setTextColor(237, 151, 76); // orange
-  doc.setFont("helvetica", "bold");
-  doc.text("Event Ticket", 105, 25, { align: "center" });
+    // Title
+    doc.setFontSize(22);
+    doc.setTextColor(237, 151, 76); // orange
+    doc.setFont("helvetica", "bold");
+    doc.text("Event Ticket", 105, 25, { align: "center" });
 
-  // Draw a line below title
-  doc.setLineWidth(0.5);
-  doc.setDrawColor(237, 151, 76);
-  doc.line(10, 30, 200, 30);
+    // Draw a line below title
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(237, 151, 76);
+    doc.line(10, 30, 200, 30);
 
-  // Ticket Details
-  doc.setFontSize(12);
-  doc.setTextColor(0, 0, 0);
-  let y = 40;
-  doc.text(`Booking ID: ${ticket._id}`, 20, y);
-  y += 10;
-  doc.text(`Show: ${showDetails.name}`, 20, y);
-  y += 10;
-  doc.text(`Place: ${showDetails.place}`, 20, y);
-  y += 10;
-  doc.text(`Hall: ${showDetails.hall}`, 20, y);
-  y += 10;
-  doc.text(`Date: ${showDetails.date}`, 20, y);
-  y += 10;
-  doc.text(`Time: ${showDetails.time}`, 20, y);
-  y += 10;
-  doc.text(`Total Paid: ${ticket.totalAmount}`, 20, y);
-
-  // Ticket Holders
-  y += 15;
-  doc.setFont("helvetica", "bold");
-  doc.text("Ticket Holders:", 20, y);
-  y += 10;
-  doc.setFont("helvetica", "normal");
-  ticket.ticketHolders?.forEach((holder, idx) => {
-    doc.text(`${idx + 1}. ${holder}`, 30, y);
+    // Ticket Details
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    let y = 40;
+    doc.text(`Booking ID: ${ticket._id}`, 20, y);
     y += 10;
-  });
+    doc.text(`Show: ${showDetails.name}`, 20, y);
+    y += 10;
+    doc.text(`Place: ${showDetails.place}`, 20, y);
+    y += 10;
+    doc.text(`Hall: ${showDetails.hall}`, 20, y);
+    y += 10;
+    doc.text(`Date: ${showDetails.date}`, 20, y);
+    y += 10;
+    doc.text(`Time: ${showDetails.time}`, 20, y);
+    y += 10;
+    doc.text(`Total Paid: ${ticket.totalAmount}`, 20, y);
 
-  // Contact
-  y += 10;
-  doc.setFont("helvetica", "bold");
-  doc.text("Contact Info:", 20, y);
-  y += 10;
-  doc.setFont("helvetica", "normal");
-  doc.text(`Email: ${ticket.email}`, 20, y);
-  y += 10;
-  doc.text(`Mobile: ${ticket.mobile}`, 20, y);
+    // Ticket Holders
+    y += 15;
+    doc.setFont("helvetica", "bold");
+    doc.text("Ticket Holders:", 20, y);
+    y += 10;
+    doc.setFont("helvetica", "normal");
+    ticket.ticketHolders?.forEach((holder, idx) => {
+      doc.text(`${idx + 1}. ${holder} - Seat ${ticket.selectedSeats[idx]}`, 30, y);
+      y += 10;
+    });
 
-  // Footer line
-  doc.setDrawColor(237, 151, 76);
-  doc.setLineWidth(0.5);
-  doc.line(10, 275, 200, 275);
 
-  // Save PDF
-  doc.save(`Ticket_${ticket._id}.pdf`);
-};
+    // Contact
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.text("Contact Info:", 20, y);
+    y += 10;
+    doc.setFont("helvetica", "normal");
+    doc.text(`Email: ${ticket.email}`, 20, y);
+    y += 10;
+    doc.text(`Mobile: ${ticket.mobile}`, 20, y);
+
+    // Footer line
+    doc.setDrawColor(237, 151, 76);
+    doc.setLineWidth(0.5);
+    doc.line(10, 275, 200, 275);
+
+    // Save PDF
+    doc.save(`Ticket_${ticket._id}.pdf`);
+  };
 
   return (
     <div className="container py-5 d-flex justify-content-center">
@@ -116,16 +117,19 @@ const Ticket = () => {
         </div>
 
         {/* Ticket Holders */}
+       // Ticket Holders section in Ticket.jsx
         <div className="mt-4">
-          <h5>👥 Ticket Holders</h5>
+          <h5>👥 Ticket Holders & Seats</h5>
           <ul className="list-group list-group-flush">
             {ticket.ticketHolders?.map((holder, idx) => (
               <li key={idx} className="list-group-item">
-                {idx + 1}. {holder}
+                {idx + 1}. {holder} - Seat {ticket.selectedSeats?.[idx] ?? "N/A"}
               </li>
             ))}
+
           </ul>
         </div>
+
 
         {/* Contact Info */}
         <div className="mt-4">
@@ -152,3 +156,4 @@ const Ticket = () => {
 };
 
 export default Ticket;
+

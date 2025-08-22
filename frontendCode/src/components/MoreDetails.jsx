@@ -1,12 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../AxiousConfig";
-import { useCallback } from "react";
 
 const MoreDetails = () => {
   const { state } = useLocation();
   const product = state?.product;
-  console.log("PRODUCT@", product)
+  console.log("PRODUCT@", product);
   const navigate = useNavigate();
   const [tickets, setTickets] = useState(1);
   const [ticketHolders, setTicketHolders] = useState([""]);
@@ -14,7 +13,7 @@ const MoreDetails = () => {
   const [mobile, setMobile] = useState("");
   const [isBookEnabled, setIsBookEnabled] = useState(false);
 
-  // Fallback to price if cost isn't present
+  // ✅ Ticket cost fallback
   const unitCost = useMemo(() => {
     const n = Number(product?.cost ?? product?.price ?? 0);
     return Number.isFinite(n) ? n : 0;
@@ -26,7 +25,7 @@ const MoreDetails = () => {
     setTickets(1);
   }, [product]);
 
-  // Keep ticketHolders array in sync with tickets count
+  // ✅ Sync ticket holders with ticket count
   useEffect(() => {
     setTicketHolders((prev) => {
       if (tickets > prev.length) {
@@ -38,115 +37,61 @@ const MoreDetails = () => {
     });
   }, [tickets]);
 
+  // --------- Helpers ---------
+ // --------- Helpers ---------
+function parseDateString(dateStr) {
+  if (!dateStr) return null;
+  // Support MM/DD/YYYY and DD/MM/YYYY
+  const parts = dateStr.split(/[/-]/);
+  if (parts.length !== 3) return null;
+
+  let m, d, y;
+  if (parts[2].length === 4) {
+    // MM/DD/YYYY
+    m = parseInt(parts[0], 10);
+    d = parseInt(parts[1], 10);
+    y = parseInt(parts[2], 10);
+  } else {
+    // DD/MM/YYYY
+    d = parseInt(parts[0], 10);
+    m = parseInt(parts[1], 10);
+    y = parseInt(parts[2], 10);
+  }
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+}
+
+function parseTimeString(timeStr) {
+  if (!timeStr) return { hours: 0, minutes: 0, ok: false };
+
+  // ✅ Handle ranges like "10:30 - 20:17"
+  const startPart = timeStr.split("-")[0].trim();
+
+  const m = startPart.match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM|am|pm))?$/);
+  if (!m) return { hours: 0, minutes: 0, ok: false };
+
+  let hours = parseInt(m[1], 10);
+  const minutes = parseInt(m[2], 10);
+  const ampm = m[3]?.toLowerCase();
+
+  if (ampm) {
+    if (ampm === "pm" && hours < 12) hours += 12;
+    if (ampm === "am" && hours === 12) hours = 0;
+  }
+  return { hours, minutes, ok: true };
+}
+
+const combineDateTime = useCallback((dateStr, timeStr) => {
+  const d = parseDateString(dateStr);
+  if (!d) return null;
+  const { hours, minutes, ok } = parseTimeString(timeStr || "00:00");
+  if (!ok && timeStr) return null;
+
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hours, minutes, 0, 0);
+}, []);
+
+
   // --------- Booking enable/disable logic ---------
-  function parseDateString(dateStr) {
-    if (!dateStr) return null;
-    const nums = dateStr.match(/\d+/g);
-    if (!nums || nums.length < 3) return null;
-
-    let y, m, d;
-    if (nums[0].length === 4) {
-      y = parseInt(nums[0], 10);
-      m = parseInt(nums[1], 10);
-      d = parseInt(nums[2], 10);
-    } else {
-      d = parseInt(nums[0], 10);
-      m = parseInt(nums[1], 10);
-      y = parseInt(nums[2], 10);
-    }
-    if (!y || !m || !d) return null;
-    return new Date(y, m - 1, d);
-  }
-
-  function parseTimeString(timeStr) {
-    if (!timeStr) return { hours: 0, minutes: 0, ok: false };
-    const m = timeStr.trim().match(/^\s*(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM|am|pm)?\s*$/);
-    if (!m) return { hours: 0, minutes: 0, ok: false };
-
-    let hours = parseInt(m[1], 10);
-    const minutes = parseInt(m[2], 10);
-    const ampm = m[3]?.toLowerCase();
-
-    if (ampm) {
-      if (ampm === "pm" && hours < 12) hours += 12;
-      if (ampm === "am" && hours === 12) hours = 0;
-    }
-    return { hours, minutes, ok: true };
-  }
-
-  // function combineDateTime(dateStr, timeStr) {
-  //   const d = parseDateString(dateStr);
-  //   if (!d) return null;
-  //   const { hours, minutes, ok } = parseTimeString(timeStr || "00:00");
-  //   if (!ok && timeStr) return null;
-
-  //   return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hours, minutes, 0, 0);
-  // }
-  const combineDateTime = useCallback((dateStr, timeStr) => {
-    const d = parseDateString(dateStr);
-    if (!d) return null;
-    const { hours, minutes, ok } = parseTimeString(timeStr || "00:00");
-    if (!ok && timeStr) return null;
-
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hours, minutes, 0, 0);
-  }, []);
-
-
-  // useEffect(() => {
-  //   if (!product?.date) {
-  //     setIsBookEnabled(false);
-  //     return;
-  //   }
-
-  //   const compute = () => {
-  //     const now = new Date();
-
-  //     // 🚫 If seats are not available -> disable immediately
-  //     if (product?.seatAvailable === false) {
-  //       setIsBookEnabled(false);
-  //       return;
-  //     }
-
-  //     const showDateOnly = parseDateString(product.date);
-  //     if (!showDateOnly || isNaN(showDateOnly.getTime())) {
-  //       setIsBookEnabled(false);
-  //       return;
-  //     }
-
-  //     const todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  //     const showDateOnlyKey = new Date(showDateOnly.getFullYear(), showDateOnly.getMonth(), showDateOnly.getDate());
-
-  //     if (showDateOnlyKey < todayDateOnly) {
-  //       setIsBookEnabled(false);
-  //       return;
-  //     }
-
-  //     if (showDateOnlyKey > todayDateOnly) {
-  //       setIsBookEnabled(true);
-  //       return;
-  //     }
-
-  //     // Same-day -> check time
-  //     if (!product?.time) {
-  //       setIsBookEnabled(false);
-  //       return;
-  //     }
-
-  //     const showDateTime = combineDateTime(product.date, product.time);
-  //     if (!showDateTime || isNaN(showDateTime.getTime())) {
-  //       setIsBookEnabled(false);
-  //       return;
-  //     }
-
-  //     const cutoff = new Date(showDateTime.getTime() - 60 * 60 * 1000);
-  //     setIsBookEnabled(now < cutoff);
-  //   };
-
-  //   compute();
-  //   const id = setInterval(compute, 30000);
-  //   return () => clearInterval(id);
-  // }, [product?.date, product?.time, product?.seatAvailable]);
-
   useEffect(() => {
     if (!product?.date) {
       setIsBookEnabled(false);
@@ -167,23 +112,27 @@ const MoreDetails = () => {
         return;
       }
 
-      const todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const showDateOnlyKey = new Date(
+      // today without time
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const showDay = new Date(
         showDateOnly.getFullYear(),
         showDateOnly.getMonth(),
         showDateOnly.getDate()
       );
 
-      if (showDateOnlyKey < todayDateOnly) {
+      // Case 1: Past date → disable
+      if (showDay < today) {
         setIsBookEnabled(false);
         return;
       }
 
-      if (showDateOnlyKey > todayDateOnly) {
+      // Case 2: Future date → enable
+      if (showDay > today) {
         setIsBookEnabled(true);
         return;
       }
 
+      // Case 3: Same day → check cutoff
       if (!product?.time) {
         setIsBookEnabled(false);
         return;
@@ -195,20 +144,21 @@ const MoreDetails = () => {
         return;
       }
 
+      // booking closes 1 hour before
       const cutoff = new Date(showDateTime.getTime() - 60 * 60 * 1000);
       setIsBookEnabled(now < cutoff);
     };
 
     compute();
-    const id = setInterval(compute, 30000);
+    const id = setInterval(compute, 30000); // refresh every 30s
     return () => clearInterval(id);
   }, [product?.date, product?.time, product?.seatAvailable, combineDateTime]);
-
 
   if (!product) return <h2>No product details found.</h2>;
 
   const total = tickets * unitCost;
 
+  // --------- Handlers ---------
   const incrementTickets = () => setTickets((n) => n + 1);
   const decrementTickets = () => setTickets((n) => (n > 1 ? n - 1 : 1));
   const handleTicketInput = (e) => {
@@ -244,7 +194,6 @@ const MoreDetails = () => {
     if (!validate()) return;
 
     try {
-
       const response = await axiosInstance.post("/api/payment/create-order", {
         amount: total,
       });
@@ -291,20 +240,17 @@ const MoreDetails = () => {
                 cost: unitCost,
               };
 
-              // ✅ Try to send email, but don't fail if it doesn't work
               try {
-
                 await axiosInstance.post("/api/email/send-ticket-email", {
                   ticket,
                   showDetails: showDetailsForEmail,
                 });
                 console.log("✅ Email sent successfully");
               } catch (emailError) {
-                console.warn("⚠️ Email sending failed, but booking was successful:", emailError.response?.data?.message || emailError.message);
-                alert("Booking successful! However, confirmation email could not be sent. Your ticket details are available on the next screen.");
+                console.warn("⚠️ Email sending failed:", emailError.response?.data?.message || emailError.message);
+                alert("Booking successful! But confirmation email could not be sent.");
               }
 
-              // ✅ Navigate regardless of email success/failure
               navigate("/ticket", {
                 state: {
                   ticket,
@@ -330,11 +276,11 @@ const MoreDetails = () => {
       alert("Failed to create payment order.");
     }
   };
+
   return (
     <div className="container py-5">
       <div className="card shadow-lg p-4" style={{ borderRadius: "20px" }}>
         <div className="row g-4">
-
           <div className="col-md-6">
             <img
               src={product.image1}
@@ -343,7 +289,6 @@ const MoreDetails = () => {
               style={{ maxHeight: "400px", objectFit: "cover", width: "100%" }}
             />
           </div>
-
 
           <div className="col-md-6 d-flex flex-column">
             <h2 style={{ color: "#ed974c" }}>{product.name}</h2>
@@ -403,7 +348,7 @@ const MoreDetails = () => {
               ))}
             </div>
 
-            <p className="mt-3"><strong>Total:</strong> ₹{tickets * unitCost}</p>
+            <p className="mt-3"><strong>Total:</strong> ₹{total}</p>
 
             <button
               className="bannerBtn mt-4"
